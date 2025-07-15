@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.code-block {
+  background-color: #1a1a1a;
+  color: #e5e5e5;
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.status-chip {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.status-verified {
+  @apply bg-success-50 text-success-600;
+}
+
+.status-pending {
+  @apply bg-warning-50 text-warning-600;
+}
+
+.status-failed {
+  @apply bg-error-50 text-error-600;
+} 
