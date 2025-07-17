@@ -1,12 +1,12 @@
 # Readme for feature/detector branch
 
-## Params
+make sure this branch is update when start your work:
 
-{
-  "timestamp": "2025-07-15T14:32:21",
-  "sender": "user_123",
-  "recipient": "user_999",
-  "amount": 200.00,
-  "currency": "MYR",
-  "corridor": "MY→TH"
-}
+```bash
+git checkout dev
+git pull origin dev
+git checkout feature/detector
+git merge dev
+```
+
+---
