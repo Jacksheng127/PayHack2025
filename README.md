@@ -11,8 +11,8 @@ We use Python + virtual environment (`payhackenv`) + requirements.txt for reprod
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/yourteam/gosel-mvp.git
-cd payhack2025
+git clone https://github.com/Jacksheng127/PayHack2025.git
+cd PayHack2025
 ```
 
 ### 2️⃣ Create & activate virtual environment (payhackenv)
@@ -43,3 +43,11 @@ pip install -r requirements.txt
 
 ✅ Do NOT commit the `payhackenv/` folder — it is specific to your machine.  
 ✅ Add it to `.gitignore`.
+
+## Project Structure
+
+/PayHack2025
+├─ data/ # for CSV files
+├─ notebooks/ # for Jupyter notebooks
+├─ scripts/ # for .py scripts
+└─ outputs/ # for generated graphs or models
