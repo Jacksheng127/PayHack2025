@@ -106,12 +106,26 @@ body {
     align-items: center;
 }
 
+/* .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+} */
+
 .user-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
     margin-right: 12px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
 }
 
 .user-avatar img {
