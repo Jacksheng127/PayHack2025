@@ -12,7 +12,7 @@ We use Python + virtual environment (`payhackenv`) + requirements.txt for reprod
 
 ```bash
 git clone https://github.com/yourteam/gosel-mvp.git
-cd gosel-mvp
+cd payhack2025
 ```
 
 ### 2️⃣ Create & activate virtual environment (payhackenv)
@@ -24,7 +24,7 @@ python3 -m venv payhackenv
 source payhackenv/bin/activate
 ```
 
-**For Windows (cmd):**
+**For Windows (cmd/powershell):**
 
 ```bash
 python -m venv payhackenv

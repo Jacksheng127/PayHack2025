@@ -1,0 +1,6 @@
+# Virtual Environment
+payhackenv/
+
+# Python cache files
+__pycache__/
+*.pyc
