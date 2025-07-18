@@ -46,8 +46,10 @@ pip install -r requirements.txt
 
 ## Project Structure
 
+```
 /PayHack2025
 ├─ data/ # for CSV files
 ├─ notebooks/ # for Jupyter notebooks
 ├─ scripts/ # for .py scripts
 └─ outputs/ # for generated graphs or models
+```
