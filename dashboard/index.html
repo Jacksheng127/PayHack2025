@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOSEL Payment System Monitor</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>GOSEL</h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li class="active" data-page="dashboard">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li data-page="smart-routing">
+                        <i class="fas fa-route"></i>
+                        <span>Smart Routing</span>
+                    </li>
+                    <li data-page="transactions">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </li>
+                    <li data-page="participants">
+                        <i class="fas fa-users"></i>
+                        <span>Participants</span>
+                    </li>
+                    <li data-page="security">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Security</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <!-- <img src="images/avatar.png" alt="User Avatar"> -->
+                    <h3>AU</h3>
+                </div>
+                <div class="user-details">
+                    <h4>Admin User</h4>
+                    <p>System Administrator</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="settings">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <h2>System Overview</h2>
+                <div class="date-time">Last updated: <span id="last-updated"></span></div>
+                
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Transactions (24h)</h3>
+                            <p class="stat-value">24,857</p>
+                            <p class="stat-change positive">+12.5% <i class="fas fa-arrow-up"></i></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Transaction Value (24h)</h3>
+                            <p class="stat-value">$4.28M</p>
+                            <p class="stat-change positive">+8.3% <i class="fas fa-arrow-up"></i></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Success Rate</h3>
+                            <p class="stat-value">99.7%</p>
+                            <p class="stat-change positive">+0.2% <i class="fas fa-arrow-up"></i></p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Avg. Transaction Speed</h3>
+                            <p class="stat-value">1.2s</p>
+                            <p class="stat-change negative">+0.1s <i class="fas fa-arrow-up"></i></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Transaction Volume (24h)</h3>
+                        <canvas id="transactionVolumeChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Success Rate by Origin</h3>
+                        <canvas id="successRateChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Fallback Rerouting Rate</h3>
+                        <div class="metric-display">
+                            <div class="metric-value">2.3%</div>
+                            <div class="metric-chart">
+                                <canvas id="fallbackRateChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>System Uptime</h3>
+                        <div class="metric-display">
+                            <div class="metric-value">99.998%</div>
+                            <div class="uptime-bars">
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="partial"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                                <div class="uptime-bar" data-status="up"></div>
+                            </div>
+                            <div class="uptime-legend">
+                                <span>Last 14 days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Routing Page -->
+            <div class="page" id="smart-routing">
+                <h2>Smart Routing Engine Monitoring</h2>
+                <div class="date-time">Last updated: <span class="update-time"></span></div>
+
+                <div class="routing-map-container">
+                    <h3>Global Payment Network</h3>
+                    <div id="routing-map"></div>
+                    <div class="map-legend">
+                        <div class="legend-item">
+                            <span class="dot green"></span> Active PSP/Bank
+                        </div>
+                        <div class="legend-item">
+                            <span class="dot red"></span> Inactive PSP/Bank
+                        </div>
+                        <div class="legend-item">
+                            <span class="line solid"></span> Active Transaction Path
+                        </div>
+                        <div class="legend-item">
+                            <span class="line dashed"></span> Fallback Path
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Path Performance Metrics</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Path</th>
+                                    <th>Latency</th>
+                                    <th>Success Rate</th>
+                                    <th>Reliability Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="path-metrics">
+                                <!-- Path metrics data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Fallback Events Log</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Original Path</th>
+                                    <th>Fallback Path</th>
+                                    <th>Reason</th>
+                                    <th>Resolution Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fallback-log">
+                                <!-- Fallback log data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>FX Rate Monitoring</h3>
+                        <div class="tabs">
+                            <div class="tab active" data-tab="major-currencies">Major Currencies</div>
+                            <div class="tab" data-tab="all-currencies">All Currencies</div>
+                        </div>
+                        <div class="tab-content active" id="major-currencies">
+                            <canvas id="fxRateChart"></canvas>
+                        </div>
+                        <div class="tab-content" id="all-currencies">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Currency Pair</th>
+                                        <th>Current Rate</th>
+                                        <th>24h Change</th>
+                                        <th>7d Change</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fx-rates">
+                                    <!-- FX rate data will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Page -->
+            <div class="page" id="transactions">
+                <h2>Transaction History</h2>
+                
+                <div class="search-filters">
+                    <div class="filter-group">
+                        <input type="text" placeholder="Transaction ID" id="txn-id-filter">
+                        <select id="psp-filter">
+                            <option value="">All PSPs</option>
+                            <option value="maybank">Maybank</option>
+                            <option value="ambank">AmBank</option>
+                            <option value="tng">Touch n Go</option>
+                            <option value="grabpay">GrabPay</option>
+                            <option value="dbs">DBS</option>
+                        </select>
+                        <select id="status-filter">
+                            <option value="">All Status</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" id="date-from" placeholder="From Date">
+                        <input type="date" id="date-to" placeholder="To Date">
+                        <input type="number" placeholder="Min Amount" id="min-amount">
+                        <input type="number" placeholder="Max Amount" id="max-amount">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn primary" id="search-btn">Search</button>
+                        <button class="btn secondary" id="reset-btn">Reset</button>
+                        <button class="btn outline" id="export-btn">Export</button>
+                    </div>
+                </div>
+
+                <div class="transaction-list">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Date & Time</th>
+                                <th>Sender</th>
+                                <th>Receiver</th>
+                                <th>Amount</th>
+                                <th>FX Rate</th>
+                                <th>Payment Path</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-table">
+                            <!-- Transaction data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button class="btn outline" id="prev-page"><i class="fas fa-chevron-left"></i></button>
+                    <span id="page-info">Page 1 of 10</span>
+                    <button class="btn outline" id="next-page"><i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <!-- Transaction Detail Modal -->
+                <div class="modal" id="transaction-detail-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Transaction Details</h3>
+                            <button class="close-modal">&times;</button>
+                        </div>
+                        <div class="modal-body" id="transaction-detail-content">
+                            <!-- Transaction detail content will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participants Page -->
+            <div class="page" id="participants">
+                <h2>Participants Management</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="all-participants">All Participants</div>
+                    <div class="tab" data-tab="by-country">By Country</div>
+                    <div class="tab" data-tab="performance">Performance</div>
+                </div>
+
+                <div class="tab-content active" id="all-participants">
+                    <div class="participant-filters">
+                        <input type="text" placeholder="Search participants..." id="participant-search">
+                        <select id="participant-type-filter">
+                            <option value="">All Types</option>
+                            <option value="bank">Banks</option>
+                            <option value="psp">PSPs</option>
+                            <option value="network">Payment Networks</option>
+                        </select>
+                        <select id="participant-status-filter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="onboarding">Onboarding</option>
+                        </select>
+                    </div>
+
+                    <div class="participant-list">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Country</th>
+                                    <th>Status</th>
+                                    <th>Integration Date</th>
+                                    <th>Success Rate</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participants-table">
+                                <!-- Participants data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="by-country">
+                    <div class="country-list">
+                        <!-- Country data will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="tab-content" id="performance">
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>Top Performing PSPs</h3>
+                            <canvas id="pspPerformanceChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Latency by Participant</h3>
+                            <canvas id="latencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Page -->
+            <div class="page" id="security">
+                <h2>Security & Compliance</h2>
+                
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Sanctions & Compliance Checks</h3>
+                        <div class="compliance-status">
+                            <div class="status-item">
+                                <div class="status-icon green">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h4>OFAC List</h4>
+                                    <p>Last updated: 2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon green">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h4>EU Sanctions</h4>
+                                    <p>Last updated: 4 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon green">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h4>UN Sanctions</h4>
+                                    <p>Last updated: 6 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-icon yellow">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div class="status-info">
+                                    <h4>Local Currency Controls</h4>
+                                    <p>2 pending updates</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Data Residency & Privacy Controls</h3>
+                        <div class="data-residency-map" id="data-residency-map">
+                            <!-- Data residency map will be inserted here -->
+                        </div>
+                        <div class="data-residency-legend">
+                            <div class="legend-item">
+                                <span class="color-box primary"></span> Primary Data Storage
+                            </div>
+                            <div class="legend-item">
+                                <span class="color-box secondary"></span> Secondary Data Storage
+                            </div>
+                            <div class="legend-item">
+                                <span class="color-box transit"></span> Data in Transit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Access Control Logs</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Resource</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="access-logs">
+                                <!-- Access logs data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/routing-map.js"></script>
+    <script src="js/mock-data.js"></script>
+</body>
+</html> 
