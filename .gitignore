@@ -1,4 +1,10 @@
-node_modules
-.DS_Store
-.env
-dist
+react-frontend/node_modules
+dashboard/.DS_Store
+backend/postgres_data
+backend/.env.example
+backend/__pycache__
+backend/venv
+backend/.DS_Store
+react-frontend/.DS_Store
+react-frontend/node_modules
+react-frontend/package-lock.json

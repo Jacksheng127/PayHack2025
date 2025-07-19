@@ -1,0 +1,32 @@
+services:
+  db:
+    container_name: my_postgres_db
+    image: postgres:14.17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db_user -d db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: gosel_backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://db_user:db_password@db:5432/db
+      FLASK_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
