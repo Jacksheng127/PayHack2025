@@ -8,3 +8,4 @@ backend/.DS_Store
 react-frontend/.DS_Store
 react-frontend/node_modules
 react-frontend/package-lock.json
+*.parquet
