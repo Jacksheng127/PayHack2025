@@ -13,3 +13,4 @@ react-frontend/package-lock.json
 *.csv
 backend/notebook/payhack_manual
 backend/payhackenv
+*.idea
