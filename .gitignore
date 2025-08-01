@@ -11,3 +11,4 @@ react-frontend/package-lock.json
 *.parquet
 .venv
 *.csv
+backend/notebook/payhack_manual
