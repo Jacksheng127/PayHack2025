@@ -3,12 +3,15 @@ import '../styles/Dashboard.css';
 import NetworkGraphVis from './NetworkGraphVis';
 import NetworkGraphCytoscape from './NetworkGraphCytoscape';
 import TransactionDetails from './TransactionDetails';
+import { DashboardProps } from '../types';
 
-interface DashboardProps {
-  onBackToFraudDetection: () => void;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ onBackToFraudDetection }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onBackToFraudDetection, newTransaction, allTransactions, onTransactionAdded }) => {
+  console.log('🎛️ Dashboard component rendered with props:', {
+    newTransaction: newTransaction ? `${newTransaction.id} (${newTransaction.customer} → ${newTransaction.merchant}, $${newTransaction.amount})` : 'null',
+    allTransactions: allTransactions ? `${allTransactions.length} transactions` : 'null',
+    onTransactionAdded: !!onTransactionAdded,
+    transactionIds: allTransactions?.map(t => t.id).join(', ') || 'none'
+  });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   const handleNodeClick = (nodeId: string) => {
@@ -29,8 +32,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onBackToFraudDetection }) => {
       {/* Main Layout - Left Side Transactions and Right Side Network Graph */}
       <div className="right-dashboard-area">
         <div className="network-graph-section">
-            <NetworkGraphCytoscape onNodeClick={handleNodeClick} />
-            {/* <NetworkGraphVis onNodeClick={handleNodeClick} /> */}
+            <NetworkGraphCytoscape 
+              key={`graph-${allTransactions?.length || 0}-${newTransaction?.id || 'none'}`} // Better key to force updates
+              onNodeClick={handleNodeClick} 
+              newTransaction={newTransaction}
+              allTransactions={allTransactions}
+              onTransactionAdded={onTransactionAdded}
+              buildNewGraph={true}
+            />
         </div>
       </div>
     </div>

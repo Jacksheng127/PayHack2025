@@ -1,27 +1,40 @@
 // Transaction data types
 export interface TransactionData {
   transaction_id: string;
-  customer: string;
-  age: number;
-  gender: 'M' | 'F';
-  zipcodeOri: string;
-  merchant: string;
-  zipMerchant: string;
+  sender: string;
+  receiver: string;
+  timestamp: string;
   amount: number;
-  category: string;
-  timestamp?: string;
+  transaction_type: string;
+  sender_type: string;
+  receiver_type: string;
+  // Legacy fields for backward compatibility
+  customer?: string;
+  age?: number;
+  gender?: 'M' | 'F';
+  zipcodeOri?: string;
+  merchant?: string;
+  zipMerchant?: string;
+  category?: string;
 }
 
 // Raw form input data (before parsing)
 export interface RawTransactionInput {
   transaction_id?: string;
+  sender?: string;
+  receiver?: string;
+  timestamp?: string;
+  amount?: string | number;
+  transaction_type?: string;
+  sender_type?: string;
+  receiver_type?: string;
+  // Legacy fields for backward compatibility
   customer?: string;
   age?: string | number;
   gender?: string;
   zipcodeOri?: string;
   merchant?: string;
   zipMerchant?: string;
-  amount?: string | number;
   category?: string;
 }
 
@@ -56,6 +69,8 @@ export interface TransactionHistoryItem {
   timestamp: string;
   amount: number;
   transaction_type: string;
+  sender_type: string;
+  receiver_type: string;
   is_fraud: boolean;
   risk_level: 'L0' | 'L1' | 'L2' | 'L3';
 }
@@ -81,6 +96,29 @@ export interface AlertModalProps {
 
 export interface LoadingOverlayProps {
   // No props needed for loading overlay
+}
+
+export interface DashboardProps {
+  onBackToFraudDetection: () => void;
+  newTransaction?: {
+    id: string;
+    customer: string;
+    merchant: string;
+    amount: number;
+    category: string;
+    isFraud: boolean;
+    riskLevel: string;
+  } | null;
+  allTransactions?: {
+    id: string;
+    customer: string;
+    merchant: string;
+    amount: number;
+    category: string;
+    isFraud: boolean;
+    riskLevel: string;
+  }[];
+  onTransactionAdded?: () => void;
 }
 
 // Transaction categories

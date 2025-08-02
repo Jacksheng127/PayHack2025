@@ -281,25 +281,25 @@ body {
 }
 
 .status-badge.L0 {
-    background-color: rgba(52, 168, 83, 0.2);
+    background-color: rgba(76, 175, 80, 0.2);
     color: var(--success-color);
     border: 1px solid var(--success-color);
 }
 
 .status-badge.L1 {
-    background-color: rgba(251, 188, 4, 0.2);
+    background-color: rgba(255, 193, 7, 0.2);
     color: var(--warning-color);
     border: 1px solid var(--warning-color);
 }
 
 .status-badge.L2 {
-    background-color: rgba(234, 67, 53, 0.2);
+    background-color: rgba(255, 152, 0, 0.2);
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
 }
 
 .status-badge.L3 {
-    background-color: rgba(234, 67, 53, 0.2);
+    background-color: rgba(244, 67, 54, 0.2);
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
 }

@@ -2,45 +2,60 @@ import React from 'react';
 
 interface Transaction {
   id: string;
+  customer: string;
+  merchant: string;
   amount: number;
-  type: 'credit' | 'debit';
-  timestamp: string;
-  description: string;
-  status: 'completed' | 'pending' | 'failed';
+  category: string;
+  isFraud: boolean;
+  riskLevel: string;
+  timestamp?: string;
+  transaction_type?: string;
+  sender_type?: string;
+  receiver_type?: string;
 }
 
 interface TransactionDetailsProps {
   selectedNode: string | null;
+  allTransactions?: Transaction[];
+  nodeData?: any; // Data from the selected node
   onClose?: () => void;
 }
 
-const TransactionDetails: React.FC<TransactionDetailsProps> = ({ selectedNode, onClose }) => {
-  // Generate mock transaction data based on selected node
-  const generateTransactions = (nodeId: string): Transaction[] => {
-    const transactionTypes = ['credit', 'debit'] as const;
-    const statuses = ['completed', 'pending', 'failed'] as const;
-    const descriptions = [
-      'ATM Withdrawal',
-      'Online Purchase',
-      'Transfer to Account',
-      'Bill Payment',
-      'Deposit',
-      'Fee Charge',
-      'Refund',
-      'Interest Payment'
-    ];
-
-    return Array.from({ length: 8 }, (_, i) => ({
-      id: `TXN_${nodeId}_${String(i + 1).padStart(3, '0')}`,
-      amount: Math.floor(Math.random() * 5000) + 10,
-      type: transactionTypes[Math.floor(Math.random() * transactionTypes.length)],
-      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-      description: descriptions[Math.floor(Math.random() * descriptions.length)],
-      status: statuses[Math.floor(Math.random() * statuses.length)]
-    })).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+const TransactionDetails: React.FC<TransactionDetailsProps> = ({ selectedNode, allTransactions = [], nodeData, onClose }) => {
+  
+  console.log('🔍 TransactionDetails rendered:', {
+    selectedNode,
+    allTransactionsCount: allTransactions.length,
+    allTransactionIds: allTransactions.map(t => t.id).join(', '),
+    nodeData
+  });
+  
+  // Get transactions related to the selected node
+  const getRelatedTransactions = (nodeId: string): Transaction[] => {
+    if (!allTransactions || allTransactions.length === 0) {
+      console.log('❌ No transactions available');
+      return [];
+    }
+    
+    // Filter transactions where the node is either sender or receiver
+    const related = allTransactions.filter(transaction => 
+      transaction.customer === nodeId || 
+      transaction.merchant === nodeId
+    ).sort((a, b) => {
+      // Sort by timestamp if available, otherwise by ID
+      const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return timeB - timeA; // Most recent first
+    });
+    
+    console.log(`🔎 Found ${related.length} transactions for node ${nodeId}:`, 
+      related.map(t => `${t.id} (${t.customer} → ${t.merchant}, $${t.amount})`));
+    
+    return related;
   };
 
-  const formatDate = (timestamp: string): string => {
+  const formatDate = (timestamp?: string): string => {
+    if (!timestamp) return 'N/A';
     return new Date(timestamp).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -49,22 +64,40 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ selectedNode, o
     });
   };
 
-  const formatAmount = (amount: number, type: 'credit' | 'debit'): string => {
+  const formatAmount = (amount: number, isOutgoing: boolean): string => {
     const formatted = `$${amount.toLocaleString()}`;
-    return type === 'credit' ? `+${formatted}` : `-${formatted}`;
+    return isOutgoing ? `-${formatted}` : `+${formatted}`;
   };
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'completed':
-        return '#2AA775';
-      case 'pending':
-        return '#FFD265';
-      case 'failed':
+  const getRiskLevelColor = (riskLevel: string): string => {
+    switch (riskLevel.toLowerCase()) {
+      case 'l1':
+      case 'high':
         return '#E8544E';
+      case 'l2':
+      case 'medium':
+        return '#FFD265';
+      case 'l3':
+      case 'low':
+        return '#2AA775';
+      case 'l4':
+      case 'l0':
       default:
-        return '#ffffff';
+        return '#2AA775';
     }
+  };
+
+  const getTransactionType = (transaction: Transaction, selectedNodeId: string): 'outgoing' | 'incoming' => {
+    return transaction.customer === selectedNodeId ? 'outgoing' : 'incoming';
+  };
+
+  const getTransactionDescription = (transaction: Transaction, selectedNodeId: string): string => {
+    const isOutgoing = transaction.customer === selectedNodeId;
+    const otherParty = isOutgoing ? transaction.merchant : transaction.customer;
+    const direction = isOutgoing ? 'to' : 'from';
+    const category = transaction.category || transaction.transaction_type || 'transfer';
+    
+    return `${category.replace('_', ' ').replace('es_', '')} ${direction} ${otherParty}`;
   };
 
   if (!selectedNode) {
@@ -81,7 +114,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ selectedNode, o
     );
   }
 
-  const transactions = generateTransactions(selectedNode);
+  const transactions = getRelatedTransactions(selectedNode);
 
   // Modal style when onClose is provided
   const modalStyle = onClose ? {
@@ -133,57 +166,75 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ selectedNode, o
           <i className="fas fa-exchange-alt"></i>
           {selectedNode} Transactions
         </h3>
-        <span className="transaction-count">{transactions.length} recent transactions</span>
+        <span className="transaction-count">{transactions.length} transactions found</span>
       </div>
 
-      <div className="transaction-list">
-        {transactions.map((transaction) => (
-          <div key={transaction.id} className="transaction-item">
-            <div className="transaction-main">
-              <div className="transaction-info">
-                <div className="transaction-description">{transaction.description}</div>
-                <div className="transaction-id">ID: {transaction.id}</div>
-                <div className="transaction-timestamp">{formatDate(transaction.timestamp)}</div>
-              </div>
-              <div className="transaction-amount-section">
-                <div 
-                  className={`transaction-amount ${transaction.type}`}
-                >
-                  {formatAmount(transaction.amount, transaction.type)}
+      {transactions.length === 0 ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px',
+          color: 'rgba(255, 255, 255, 0.6)'
+        }}>
+          <i className="fas fa-info-circle" style={{ fontSize: '24px', marginBottom: '10px' }}></i>
+          <p>No transactions found for this entity.</p>
+        </div>
+      ) : (
+        <>
+          <div className="transaction-list">
+            {transactions.map((transaction: Transaction) => {
+              const isOutgoing = getTransactionType(transaction, selectedNode) === 'outgoing';
+              const description = getTransactionDescription(transaction, selectedNode);
+              
+              return (
+                <div key={transaction.id} className="transaction-item">
+                  <div className="transaction-main">
+                    <div className="transaction-info">
+                      <div className="transaction-description">{description}</div>
+                      <div className="transaction-id">ID: {transaction.id}</div>
+                      <div className="transaction-timestamp">{formatDate(transaction.timestamp)}</div>
+                    </div>
+                    <div className="transaction-amount-section">
+                      <div 
+                        className={`transaction-amount ${isOutgoing ? 'debit' : 'credit'}`}
+                      >
+                        {formatAmount(transaction.amount, isOutgoing)}
+                      </div>
+                      <div 
+                        className="transaction-status"
+                        style={{ color: getRiskLevelColor(transaction.riskLevel) }}
+                      >
+                        <i className="fas fa-circle"></i>
+                        {transaction.isFraud ? 'FRAUD' : transaction.riskLevel}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div 
-                  className="transaction-status"
-                  style={{ color: getStatusColor(transaction.status) }}
-                >
-                  <i className={`fas fa-circle status-${transaction.status}`}></i>
-                  {transaction.status}
-                </div>
-              </div>
+              );
+            })}
+          </div>
+
+          <div className="transaction-summary">
+            <div className="summary-item">
+              <span className="summary-label">Total Incoming:</span>
+              <span className="summary-value credit">
+                +${transactions
+                  .filter((t: Transaction) => getTransactionType(t, selectedNode) === 'incoming')
+                  .reduce((sum: number, t: Transaction) => sum + t.amount, 0)
+                  .toLocaleString()}
+              </span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Total Outgoing:</span>
+              <span className="summary-value debit">
+                -${transactions
+                  .filter((t: Transaction) => getTransactionType(t, selectedNode) === 'outgoing')
+                  .reduce((sum: number, t: Transaction) => sum + t.amount, 0)
+                  .toLocaleString()}
+              </span>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="transaction-summary">
-        <div className="summary-item">
-          <span className="summary-label">Total Credit:</span>
-          <span className="summary-value credit">
-            +${transactions
-              .filter(t => t.type === 'credit')
-              .reduce((sum, t) => sum + t.amount, 0)
-              .toLocaleString()}
-          </span>
-        </div>
-        <div className="summary-item">
-          <span className="summary-label">Total Debit:</span>
-          <span className="summary-value debit">
-            -${transactions
-              .filter(t => t.type === 'debit')
-              .reduce((sum, t) => sum + t.amount, 0)
-              .toLocaleString()}
-          </span>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };

@@ -875,3 +875,234 @@ body {
 .transaction-details::-webkit-scrollbar-thumb:hover {
   background: rgba(66, 133, 244, 0.7);
 }
+
+/* Info Button and Popover Styles */
+.section-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.info-button-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.info-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-button:hover {
+  color: #4285f4;
+  background: rgba(66, 133, 244, 0.1);
+  transform: scale(1.1);
+}
+
+.info-button:focus {
+  outline: none;
+  color: #4285f4;
+}
+
+.risk-level-popover {
+  position: absolute;
+  bottom: -280px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0;
+  min-width: 700px;
+  max-width: 800px;
+  z-index: 9999999999999999;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+  animation: popoverFadeInUp 0.2s ease;
+}
+
+.popover-header {
+  background: rgba(66, 133, 244, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4285f4;
+  border-radius: 12px 12px 0 0;
+  text-align: center;
+}
+
+.popover-content {
+  padding: 20px;
+}
+
+.risk-level-item {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.risk-level-item:last-child {
+  margin-bottom: 0;
+}
+
+.risk-level-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.risk-level-header .status-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 40px;
+  white-space: nowrap;
+}
+
+.risk-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.risk-details {
+  margin-left: 0;
+}
+
+.risk-detail-row {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.risk-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.risk-detail-row strong {
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 90px;
+  display: inline-block;
+}
+
+.status-badge.l0 {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-badge.l1 {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-badge.l2 {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff7700;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.status-badge.l3 {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popoverFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design for popover */
+@media (max-width: 768px) {
+  .risk-level-popover {
+    min-width: 300px;
+    max-width: 90vw;
+    right: -20px;
+    z-index: 10000;
+    bottom: 100%;
+    margin-bottom: 12px;
+  }
+  
+  .popover-content {
+    padding: 16px;
+  }
+  
+  .risk-level-item {
+    padding: 10px 12px;
+    gap: 12px;
+    grid-template-columns: 50px 1fr;
+  }
+  
+  .risk-level-item .status-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+    min-width: 35px;
+  }
+  
+  .risk-description {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .risk-level-popover {
+    min-width: 280px;
+    right: -40px;
+    z-index: 10000;
+    bottom: 100%;
+    margin-bottom: 12px;
+  }
+  
+  .section-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .info-button-container {
+    align-self: flex-end;
+  }
+  
+  .risk-level-item {
+    grid-template-columns: 45px 1fr;
+    gap: 10px;
+  }
+}

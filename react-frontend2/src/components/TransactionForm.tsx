@@ -5,7 +5,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
   const [rawData, setRawData] = useState<string>('');
   const [parseError, setParseError] = useState<string>('');
 
-  const parseInputData = (input: string): TransactionData | null => {
+  const parseInputData = (input: string): string | null => {
     try {
       setParseError('');
       
@@ -14,52 +14,49 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
         throw new Error('Please enter some data');
       }
 
-      // Split by semicolon, comma, or newline (prioritize semicolon, then comma, then newline)
-      let dataArray: string[];
+      // Check if input contains semicolons (multiple transactions)
       if (cleanInput.includes(';')) {
-        dataArray = cleanInput.split(';');
-      } else if (cleanInput.includes(',')) {
-        dataArray = cleanInput.split(',');
-      } else if (cleanInput.includes('\n')) {
-        dataArray = cleanInput.split('\n');
-      } else {
-        // If no separator found, assume it's a single piece of data
-        dataArray = [cleanInput];
+        // Handle multiple transactions - pass the input as is since it's already in the correct format
+        // The backend parse_and_process_data function expects: id,sender,receiver,timestamp,amount,type,ofi_type,rfi_type
+        return cleanInput;
       }
 
-      // Clean up each data point
-      dataArray = dataArray.map(item => item.trim()).filter(item => item.length > 0);
+      // Handle single transaction - split by comma
+      const dataArray = cleanInput.split(',').map(item => item.trim()).filter(item => item.length > 0);
 
       if (dataArray.length === 0) {
         throw new Error('No valid data found');
       }
 
-      // Expected data order: [transaction_id, customer, age, gender, zipcodeOri, merchant, zipMerchant, amount, category]
-      const parsedData: TransactionData = {
-        transaction_id: dataArray[0] || generateTransactionId(),
-        customer: dataArray[1] || `C${Math.random().toString().substr(2, 10)}`,
-        age: parseInt(dataArray[2]) || 30,
-        gender: (dataArray[3] && (dataArray[3].toUpperCase() === 'M' || dataArray[3].toUpperCase() === 'F')) 
-          ? (dataArray[3].toUpperCase() as 'M' | 'F') 
-          : 'M',
-        zipcodeOri: dataArray[4] || '12345',
-        merchant: dataArray[5] || `M${Math.random().toString().substr(2, 10)}`,
-        zipMerchant: dataArray[6] || '54321',
-        amount: parseFloat(dataArray[7]) || 100.00,
-        category: dataArray[8] || 'es_misc_pos',
-        timestamp: new Date().toISOString()
-      };
+      // For single transaction, convert to the model's expected format
+      // If the input is already in the correct format (8 fields), use it as is
+      if (dataArray.length >= 8) {
+        // Input is already in correct format: id,sender,receiver,timestamp,amount,type,ofi_type,rfi_type
+        return cleanInput;
+      }
+
+      // Otherwise, convert from old format to new format
+      // Expected frontend order: [transaction_id, customer, age, gender, zipcodeOri, merchant, zipMerchant, amount, category]
+      // Model expects: id,sender,receiver,timestamp,amount,type,ofi_type,rfi_type
+      
+      const transaction_id = dataArray[0] || generateTransactionId();
+      const sender = dataArray[1] || `C${Math.random().toString().substr(2, 10)}`;
+      const receiver = dataArray[5] || `M${Math.random().toString().substr(2, 10)}`;
+      const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
+      const amount = parseFloat(dataArray[7]) || 100.00;
+      const type = dataArray[8] || 'transfer';
+      const ofi_type = 'personal'; // Default for now
+      const rfi_type = 'business'; // Default for now
 
       // Validation
-      if (isNaN(parsedData.age) || parsedData.age < 1 || parsedData.age > 120) {
-        throw new Error('Invalid age provided');
-      }
-      
-      if (isNaN(parsedData.amount) || parsedData.amount <= 0) {
+      if (isNaN(amount) || amount <= 0) {
         throw new Error('Invalid amount provided');
       }
 
-      return parsedData;
+      // Format as model expects: id,sender,receiver,timestamp,amount,type,ofi_type,rfi_type
+      const modelFormatData = `${transaction_id},${sender},${receiver},${timestamp},${amount},${type},${ofi_type},${rfi_type}`;
+      
+      return modelFormatData;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setParseError(errorMessage);
@@ -75,9 +72,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     
-    const parsedData = parseInputData(rawData);
-    if (parsedData) {
-      onSubmit(parsedData);
+    const modelFormatData = parseInputData(rawData);
+    if (modelFormatData) {
+      // Pass the raw data string to the parent component
+      // The parent will handle the API call to the batch endpoint
+      onSubmit({ raw_data: modelFormatData } as any);
     }
   };
 
@@ -88,17 +87,17 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
 
   // Generate sample data for user reference
   const generateSampleData = (): void => {
+    const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0];
     const sampleData = [
       'TXN_12345',           // transaction_id
-      'C1093826151',         // customer
-      '35',                  // age
-      'M',                   // gender
-      '28007',               // zipcodeOri
-      'M348934600',          // merchant
-      '28007',               // zipMerchant
+      'C1093826151',         // sender (customer)
+      'M348934600',          // receiver (merchant)
+      timestamp,             // timestamp
       '156.50',              // amount
-      'es_food'              // category
-    ].join(';');
+      'transfer',            // transaction type
+      'personal',            // sender type (ofi_type)
+      'business'             // receiver type (rfi_type)
+    ].join(',');
     
     setRawData(sampleData);
     setParseError('');
@@ -119,7 +118,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
             name="rawData"
             value={rawData}
             onChange={handleInputChange}
-            placeholder="Enter data in this order: transaction_id;customer;age;gender;zipcodeOri;merchant;zipMerchant;amount;category&#10;&#10;Example:&#10;TXN_12345;C1093826151;35;M;28007;M348934600;28007;156.50;es_food&#10;&#10;Or use commas or new lines as separators..."
+            placeholder="Enter data in this order: transaction_id,sender,receiver,timestamp,amount,type,sender_type,receiver_type&#10;&#10;Example:&#10;TXN_12345,C1093826151,M348934600,2025-08-03 00:54:15,156.50,transfer,personal,business&#10;&#10;Multiple transactions separated by semicolons (;)..."
             rows={6}
             style={{ 
               width: '100%', 
@@ -160,10 +159,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ onSubmit, generateTra
             <i className="fas fa-info-circle"></i> Data Format Guide
           </h4>
           <p style={{ margin: '0 0 8px 0', color: 'rgba(255, 255, 255, 0.7)' }}>
-            <strong>Expected order:</strong> transaction_id, customer, age, gender, zipcodeOri, merchant, zipMerchant, amount, category
+            <strong>Expected order:</strong> transaction_id, sender, receiver, timestamp, amount, type, sender_type, receiver_type
           </p>
           <p style={{ margin: '0', color: 'rgba(255, 255, 255, 0.7)' }}>
-            <strong>Separators:</strong> Use semicolon (;), comma (,), or new line to separate each field
+            <strong>Format:</strong> Use comma (,) to separate fields, semicolon (;) to separate multiple transactions
           </p>
         </div>
 
